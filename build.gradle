@@ -1,0 +1,86 @@
+import java.nio.charset.StandardCharsets
+
+plugins {
+	id 'java'
+	id "jacoco"
+	id 'idea'
+	id "org.sonarqube" version "3.5.0.2730"
+}
+
+group = 'org.commerxo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_17
+
+clean{
+	dependsOn = [":commerxo-oauth2-common:clean", ":commerxo-oauth2-core:clean",
+				 ":commerxo-oauth2-server:clean", ":commerxo-oauth2-jwt:clean"]
+}
+
+dependencies {
+	implementation project(":commerxo-oauth2-common")
+	implementation project(":commerxo-oauth2-core")
+	implementation project(":commerxo-oauth2-server")
+	implementation project(":commerxo-oauth2-jwt")
+}
+
+//configurations {
+//	compileOnly {
+//		extendsFrom annotationProcessor
+//	}
+//}
+
+//tasks['sonarqube'].dependsOn jacocoTestReport
+//
+//jacocoTestReport {
+//	reports {
+//		xml.enabled true
+//
+//	}
+//}
+
+subprojects {
+
+	jacocoTestReport{
+		reports {
+			xml.enabled = true
+			xml.destination = file("${project.group}/reports/jacoco.xml")
+		}
+	}
+
+	sonarqube {
+		properties {
+			property "sonar.language", "java"
+			property "sonar.sourceEncoding", StandardCharsets.UTF_8
+		}
+	}
+}
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+allprojects {
+
+	apply plugin: 'java'
+	apply plugin: 'idea'
+
+	compileJava.options.encoding = StandardCharsets.UTF_8
+
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+
+	dependencies {
+		implementation 'org.springframework.security:spring-security-web:6.0.1'
+		implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+		implementation 'net.minidev:json-smart:2.4.10'
+		implementation 'org.springframework.security:spring-security-config:6.0.1'
+		implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+		testImplementation 'org.springframework.security:spring-security-test:6.0.1'
+
+	}
+
+}
+

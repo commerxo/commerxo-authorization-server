@@ -1,0 +1,6 @@
+rootProject.name = 'authorization-server'
+include 'commerxo-oauth2-server'
+include 'commerxo-oauth2-common'
+include 'commerxo-oauth2-jwt'
+include 'commerxo-oauth2-core'
+
