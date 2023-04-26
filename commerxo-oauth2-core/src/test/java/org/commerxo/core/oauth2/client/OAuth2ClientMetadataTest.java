@@ -12,10 +12,11 @@ import com.nimbusds.jwt.SignedJWT;
 import org.commerxo.core.oauth2.AuthorizationGrantType;
 import org.commerxo.core.oauth2.ClientAuthenticationMethod;
 import org.commerxo.core.oauth2.ClientType;
+import org.commerxo.core.oauth2.id.SoftwareID;
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +29,14 @@ public class OAuth2ClientMetadataTest {
     private static final String LOGO_URI = "https://example.com/logo";
     private static final String CLIENT_URI = "https://example.com/client";
 
-
+    @Test
+    public void testClientMetadataWhenRedirectUriNotProvidedAndGrantTypeAuthorizationCode() throws Exception{
+        assertThrows(IllegalArgumentException.class, () ->{
+           OAuth2ClientMetadata.builder()
+                   .grantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                   .build();
+        });
+    }
 
     @Test
     public void testClientMetadata() throws Exception{
@@ -51,6 +59,71 @@ public class OAuth2ClientMetadataTest {
         assertEquals(Set.of("example@mail.com", "example1@mail.com"), clientMetadata.getContacts());
         assertEquals(Set.of("https://www.example.com","https://www.example1.com"), clientMetadata.getRedirectUris());
 
+    }
+
+    @Test
+    public void testClientMetadataWhenUpdateAttributes() throws Exception{
+        String jwks_uri = "https://example.com/jwks/abc.json";
+        String policy_uri = "https://example.com/policy";
+        String softwareVersion = "V2.0";
+        Set<String> redirectUris = Set.of("https://www.examples.com/callback");
+        Set<String> contacts = Set.of("example@email.com");
+        Set<String> scopes = Set.of("blog:read");
+        Map<String, Object> additionalInformation = Map.of("key2", "value2", "key1", "value1");
+
+        OAuth2ClientMetadata clientMetadata = OAuth2ClientMetadataTest.getClientMetadata().build();
+        OAuth2ClientMetadata updatedClientMetadata = OAuth2ClientMetadata.from(clientMetadata)
+                .jwksUri(jwks_uri)
+                .policyUri(policy_uri)
+                .redirectUris(r -> {
+                    r.clear();
+                    r.addAll(redirectUris);
+                })
+                .contacts(c -> {
+                    c.clear();
+                    c.addAll(contacts);
+                })
+                .scopes(s -> {
+                    s.clear();
+                    s.addAll(scopes);
+                })
+                .softwareID(new SoftwareID())
+                .softwareVersion(softwareVersion)
+                .additionalInformations(a -> a.putAll(additionalInformation))
+                .build();
+
+        assertEquals(scopes, updatedClientMetadata.getScopes());
+        assertEquals(jwks_uri, updatedClientMetadata.getJwksUri());
+        assertEquals(contacts, updatedClientMetadata.getContacts());
+        assertEquals(policy_uri, updatedClientMetadata.getPolicyUri());
+        assertNotNull(updatedClientMetadata.getSoftwareID().getValue());
+        assertEquals(redirectUris, updatedClientMetadata.getRedirectUris());
+        assertEquals(softwareVersion, updatedClientMetadata.getSoftwareVersion().getValue());
+        assertEquals(additionalInformation, updatedClientMetadata.getAdditionalInformation());
+
+    }
+
+    @Test
+    public void testClientMetadataWhenMakeCopy() throws Exception{
+        OAuth2ClientMetadata clientMetadata = OAuth2ClientMetadataTest.getClientMetadata().build();
+        OAuth2ClientMetadata updatedClientMetadata = OAuth2ClientMetadata.from(clientMetadata).build();
+
+        assertEquals(clientMetadata.getJwksUri(), updatedClientMetadata.getJwksUri());
+        assertEquals(((RSAKey)clientMetadata.getJwkSet().getKeys().get(0)).getModulus().toString(), ((RSAKey)updatedClientMetadata.getJwkSet().getKeys().get(0)).getModulus().toString());
+        assertEquals(((RSAKey)clientMetadata.getJwkSet().getKeys().get(0)).getPublicExponent().toString(), ((RSAKey)updatedClientMetadata.getJwkSet().getKeys().get(0)).getPublicExponent().toString());
+        assertEquals(clientMetadata.getSoftwareID().getValue(), updatedClientMetadata.getSoftwareID().getValue());
+        assertEquals(clientMetadata.getSoftwareVersion().getValue(), updatedClientMetadata.getSoftwareVersion().getValue());
+        assertEquals(clientMetadata.getPolicyUri(), updatedClientMetadata.getPolicyUri());
+        assertEquals(clientMetadata.getLogoUri(), updatedClientMetadata.getLogoUri());
+        assertEquals(clientMetadata.getClientUri(), updatedClientMetadata.getClientUri());
+        assertEquals(clientMetadata.getClientAuthenticationMethod(), updatedClientMetadata.getClientAuthenticationMethod());
+        assertEquals(clientMetadata.getClientAuthenticationAlg(), updatedClientMetadata.getClientAuthenticationAlg());
+        assertEquals(clientMetadata.getGrantTypes(), updatedClientMetadata.getGrantTypes());
+        assertEquals(clientMetadata.getScopes(), updatedClientMetadata.getScopes());
+        assertEquals(clientMetadata.getTosUri(), updatedClientMetadata.getTosUri());
+        assertEquals(clientMetadata.getClientType(), updatedClientMetadata.getClientType());
+        assertEquals(clientMetadata.getContacts(), updatedClientMetadata.getContacts());
+        assertEquals(clientMetadata.getRedirectUris(), updatedClientMetadata.getRedirectUris());
     }
 
     public static OAuth2ClientMetadata.Builder getClientMetadata(){
@@ -78,7 +151,8 @@ public class OAuth2ClientMetadataTest {
                 .redirectUris(r->r.add("https://www.example1.com"));
     }
 
-    public static OAuth2ClientMetadata.Builder getClientMetadataWithSignedJwt() throws JOSEException, ParseException {
+    @Test
+    public void testClientMetadataWithSignedJwt() throws Exception {
         RSAKey rsaKey = new RSAKeyGenerator(2048)
                 .keyID("1234")
                 .generate();
@@ -101,7 +175,7 @@ public class OAuth2ClientMetadataTest {
 
         RSAKey rsaJwkSet = new RSAKey.Builder(new Base64URL("abcd"), new Base64URL("xyz")).build();
         JWKSet jwkSet = new JWKSet(rsaJwkSet);
-        return OAuth2ClientMetadata.builder()
+        OAuth2ClientMetadata clientMetadata = OAuth2ClientMetadata.builder()
                 .jwkSet(jwkSet)
                 .jwksUri(JWKS_URI)
                 .softwareID("1245")
@@ -117,10 +191,17 @@ public class OAuth2ClientMetadataTest {
                 .scope("profile:read")
                 .scopes(s1->s1.add("email:read"))
                 .tosUri(TOS_URI)
+                .additionalInformation("key1", "value2")
                 .contact("example@mail.com")
                 .contacts(c->c.add("example1@mail.com"))
                 .clientType(ClientType.CONFIDENTIAL)
                 .redirectUri("https://www.example.com")
-                .redirectUris(r->r.add("https://www.example1.com"));
+                .redirectUris(r->r.add("https://www.example1.com")).build();
+
+        assertTrue(signedJWT.verify(verifier));
+        assertEquals("alice", clientMetadata.getSoftwareStatement().getJWTClaimsSet().getSubject());
+        assertEquals("https://c2id.com", clientMetadata.getSoftwareStatement().getJWTClaimsSet().getIssuer());
+        assertTrue(new Date().before(clientMetadata.getSoftwareStatement().getJWTClaimsSet().getExpirationTime()));
+
     }
 }

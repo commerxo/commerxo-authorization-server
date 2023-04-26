@@ -324,6 +324,11 @@ public class OAuth2ClientMetadata {
             return clientMetadata;
         }
 
+        private OAuth2ClientMetadata parse(JSONObject jsonObject) {
+            OAuth2ClientMetadata clientMetadata = new OAuth2ClientMetadata();
+            return null;
+        }
+
         private JSONObject toJSONObject(OAuth2ClientMetadata clientMetadata){
             JSONObject o = new JSONObject();
 
@@ -385,4 +390,5 @@ public class OAuth2ClientMetadata {
             return o;
         }
     }
+
 }

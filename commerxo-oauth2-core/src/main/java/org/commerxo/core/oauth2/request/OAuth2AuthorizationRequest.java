@@ -2,7 +2,10 @@ package org.commerxo.core.oauth2.request;
 
 import org.commerxo.core.oauth2.AuthorizationGrantType;
 import org.commerxo.core.oauth2.OAuth2AuthorizationResponseType;
+import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -14,6 +17,7 @@ public final class OAuth2AuthorizationRequest {
     private Set<String> scopes;
     private String redirectUri;
     private String authorizationUri;
+    private String authorizationRequestUri;
     private AuthorizationGrantType authorizationGrantType;
     private OAuth2AuthorizationResponseType authorizationResponseType;
     private Map<String, Object> additionalParameters;
@@ -38,6 +42,10 @@ public final class OAuth2AuthorizationRequest {
         return this.authorizationUri;
     }
 
+    public String getAuthorizationRequestUri() {
+        return authorizationRequestUri;
+    }
+
     public AuthorizationGrantType getAuthorizationGrantType() {
         return this.authorizationGrantType;
     }
@@ -54,32 +62,42 @@ public final class OAuth2AuthorizationRequest {
         return new Builder(AuthorizationGrantType.AUTHORIZATION_CODE);
     }
 
-    public static Builder implicit(){
-        return new Builder(AuthorizationGrantType.IMPLICIT);
-    }
-
     public static Builder from(OAuth2AuthorizationRequest request){
         if(request == null)
-            throw new IllegalArgumentException("");
-        return new Builder(request);
+            throw new IllegalArgumentException("OAuth2.0 authorization can't be null!");
+        return new Builder()
+                .clientID(request.getClientId())
+                .state(request.getState())
+                .scopes(s->s.addAll(request.getScopes()))
+                .redirectUri(request.getRedirectUri())
+                .authorizationUri(request.getAuthorizationUri())
+                .authorizationRequestUri(request.getAuthorizationRequestUri())
+                .authorizationGrantType(request.getAuthorizationGrantType())
+                .authorizationResponseType(request.getAuthorizationResponseType())
+                .additionalParameters(a -> a.putAll(request.getAdditionalParameters()));
     }
 
     public static class Builder{
 
         private String clientId;
         private String state;
-        private Set<String> scopes;
         private String redirectUri;
+        private String authorizationRequestUri;
         private String authorizationUri;
         private AuthorizationGrantType authorizationGrantType;
+        private final Set<String> scopes = new HashSet<>();
         private OAuth2AuthorizationResponseType authorizationResponseType;
-        private Map<String, Object> additionalParameters;
+        private final Map<String, Object> additionalParameters = new HashMap<>();
+
+        protected Builder(){}
 
         protected Builder(AuthorizationGrantType authorizationGrantType){
+            if(authorizationGrantType == null)
+                throw new IllegalArgumentException("authorizationGrantType can't be null!");
             this.authorizationGrantType = authorizationGrantType;
-        }
-
-        protected  Builder(OAuth2AuthorizationRequest request){
+            if(AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
+                this.authorizationResponseType = OAuth2AuthorizationResponseType.CODE;
+            }
 
         }
 
@@ -118,12 +136,40 @@ public final class OAuth2AuthorizationRequest {
             return this;
         }
 
+        /**
+         *  Example -> https://www.example.com/oauth2/authorize?client_id=1&scope=etc
+         * @param authorizationRequestUri
+         * @return
+         */
+        public Builder authorizationRequestUri(String authorizationRequestUri){
+            this.authorizationRequestUri = authorizationRequestUri;
+            return this;
+        }
+
         public Builder additionalParameters(Consumer<Map<String, Object>> additionalParametersConsumer){
             additionalParametersConsumer.accept(this.additionalParameters);
             return this;
         }
 
 
+        public OAuth2AuthorizationRequest build(){
+            if(!StringUtils.hasText(this.authorizationUri))
+                throw new IllegalArgumentException("authorizationUri can't be empty!");
+            if(!StringUtils.hasText(this.clientId))
+                throw new IllegalArgumentException("clientId can't be empty!");
+
+            OAuth2AuthorizationRequest authorizationRequest = new OAuth2AuthorizationRequest();
+            authorizationRequest.clientId = this.clientId;
+            authorizationRequest.redirectUri = this.redirectUri;
+            authorizationRequest.state = this.state;
+            authorizationRequest.scopes = this.scopes;
+            authorizationRequest.authorizationUri = this.authorizationUri;
+            authorizationRequest.authorizationRequestUri = this.authorizationRequestUri;
+            authorizationRequest.authorizationGrantType = this.authorizationGrantType;
+            authorizationRequest.authorizationResponseType = this.authorizationResponseType;
+            authorizationRequest.additionalParameters = this.additionalParameters;
+            return authorizationRequest;
+        }
 
     }
 }

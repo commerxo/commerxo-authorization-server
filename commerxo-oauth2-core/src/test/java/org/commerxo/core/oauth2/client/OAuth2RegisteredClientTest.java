@@ -80,21 +80,6 @@ public class OAuth2RegisteredClientTest {
         Instant clientIDIssuedAt = Instant.now();
         Instant clientSecretExpiredAt = clientIDIssuedAt.plus(5, ChronoUnit.MINUTES);
 
-        OAuth2ClientMetadata clientMetadata = OAuth2ClientMetadata.builder()
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .redirectUris(r -> r.addAll(REDIRECT_URIS))
-                .grantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .grantType(AuthorizationGrantType.CLIENT_CREDENTIAL)
-                .build();
-
-        OAuth2ClientInformation clientInformation = OAuth2ClientInformation.builder()
-                .clientID("client")
-                .secret("secret")
-                .clientMetadata(clientMetadata)
-                .build();
-
-        JSONObject json = OAuth2ClientInformation.toJson(clientInformation);
-
         OAuth2RegisteredClient registeredClient = OAuth2RegisteredClient.builder()
                 .clientID("client")
                 .secret("secret")
