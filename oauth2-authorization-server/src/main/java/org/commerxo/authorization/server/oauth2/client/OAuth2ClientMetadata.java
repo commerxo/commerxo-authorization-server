@@ -1,15 +1,15 @@
-package org.commerxo.oauth2.authorization.server.oauth2.client;
+package org.commerxo.authorization.server.oauth2.client;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.commerxo.oauth2.core.AuthorizationGrantType;
-import org.commerxo.oauth2.core.ClientAuthenticationMethod;
-import org.commerxo.oauth2.core.ClientType;
-import org.commerxo.oauth2.core.id.SoftwareID;
-import org.commerxo.oauth2.core.id.SoftwareVersion;
+import org.commerxo.authorization.server.oauth2.AuthorizationGrantType;
+import org.commerxo.authorization.server.oauth2.ClientAuthenticationMethod;
+import org.commerxo.authorization.server.oauth2.ClientType;
+import org.commerxo.authorization.server.oauth2.id.SoftwareID;
+import org.commerxo.authorization.server.oauth2.id.SoftwareVersion;
 
 import java.util.Map;
 import java.util.Set;
@@ -177,6 +177,10 @@ public class OAuth2ClientMetadata {
 
     public void setAdditionalInformation(Map<String, Object> additionalInformation) {
         this.additionalInformation = additionalInformation;
+    }
+
+    public static OAuth2ClientMetadata parse(JSONObject jsonObject) {
+        return null;
     }
 
     public static JSONObject toJSONObject(OAuth2ClientMetadata clientMetadata) {

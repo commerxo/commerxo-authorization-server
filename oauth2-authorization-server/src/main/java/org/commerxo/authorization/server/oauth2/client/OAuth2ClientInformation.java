@@ -1,8 +1,8 @@
-package org.commerxo.oauth2.authorization.server.oauth2.client;
+package org.commerxo.authorization.server.oauth2.client;
 
 import net.minidev.json.JSONObject;
-import org.commerxo.oauth2.core.id.ClientID;
-import org.commerxo.oauth2.core.id.Secret;
+import org.commerxo.authorization.server.oauth2.id.ClientID;
+import org.commerxo.authorization.server.oauth2.id.Secret;
 
 import java.time.Instant;
 import java.util.HashSet;

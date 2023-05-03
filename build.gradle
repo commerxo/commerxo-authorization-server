@@ -77,7 +77,6 @@ allprojects {
 		implementation 'net.minidev:json-smart:2.4.10'
 		implementation 'org.springframework.security:spring-security-config:6.0.1'
 		implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-
 		testImplementation 'org.springframework.security:spring-security-test:6.0.1'
 
 	}

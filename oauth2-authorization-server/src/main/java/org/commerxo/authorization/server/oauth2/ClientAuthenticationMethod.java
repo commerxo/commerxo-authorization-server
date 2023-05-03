@@ -1,6 +1,7 @@
-package org.commerxo.oauth2.authorization.server.oauth2;
+package org.commerxo.authorization.server.oauth2;
 
-import org.commerxo.oauth2.core.id.Identifier;
+
+import org.commerxo.authorization.server.oauth2.id.Identifier;
 
 public final class ClientAuthenticationMethod extends Identifier {
 

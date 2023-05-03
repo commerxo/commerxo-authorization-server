@@ -1,4 +1,4 @@
-package org.commerxo.oauth2.authorization.server.oauth2.id;
+package org.commerxo.authorization.server.oauth2.id;
 
 /**
  RFC 6749 - OAuth 2.0 Protocol Standard @see <a href = "https://datatracker.ietf.org/doc/html/rfc6749#section-2.2"> Section 2.2 </a>

@@ -1,4 +1,4 @@
-package org.commerxo.oauth2.authorization.server.oauth2;
+package org.commerxo.authorization.server.oauth2;
 
 import java.util.HashMap;
 import java.util.Map;

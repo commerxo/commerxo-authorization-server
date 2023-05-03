@@ -1,7 +1,7 @@
-package org.commerxo.oauth2.authorization.server.oauth2.request;
+package org.commerxo.authorization.server.oauth2.request;
 
-import org.commerxo.oauth2.authorization.server.oauth2.AuthorizationGrantType;
-import org.commerxo.oauth2.authorization.server.oauth2.OAuth2AuthorizationResponseType;
+import org.commerxo.authorization.server.oauth2.AuthorizationGrantType;
+import org.commerxo.authorization.server.oauth2.OAuth2AuthorizationResponseType;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;

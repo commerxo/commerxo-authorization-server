@@ -1,4 +1,4 @@
-package org.commerxo.oauth2.authorization.server.oauth2.id;
+package org.commerxo.authorization.server.oauth2.id;
 
 import java.util.UUID;
 
