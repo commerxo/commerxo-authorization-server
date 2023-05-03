@@ -4,6 +4,7 @@ plugins {
 	id 'java'
 	id "jacoco"
 	id 'idea'
+	id 'java-library'
 	id "org.sonarqube" version "3.5.0.2730"
 }
 
@@ -12,15 +13,13 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = JavaVersion.VERSION_17
 
 clean{
-	dependsOn = [":commerxo-oauth2-common:clean", ":commerxo-oauth2-core:clean",
-				 ":commerxo-oauth2-server:clean", ":commerxo-oauth2-jwt:clean"]
+	dependsOn = [":oauth2-authorization-server:clean", ":commerxo-oauth2-core:clean"]
 }
 
+
 dependencies {
-	implementation project(":commerxo-oauth2-common")
 	implementation project(":commerxo-oauth2-core")
-	implementation project(":commerxo-oauth2-server")
-	implementation project(":commerxo-oauth2-jwt")
+	implementation project(":oauth2-authorization-server")
 }
 
 //configurations {
